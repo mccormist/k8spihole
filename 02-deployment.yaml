@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pihole-deployment
-  namespace: pihole-test
+  namespace: pihole-lox
   labels:
     app: pihole
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: pihole
@@ -34,12 +34,27 @@ spec:
             configMapKeyRef:
               name: pihole-env
               key: DNS2
+        - name: WEBPW
+          valueFrom:
+            configMapKeyRef:
+              name: pihole-env
+              key: WEBPW
+        - name: SERVERIP
+          valueFrom:
+            configMapKeyRef:
+              name: pihole-env
+              key: SERVERIP
         ports:
         - name: web
           containerPort: 80
         - name : dns
           protocol : UDP
           containerPort: 53
+        - name : dns-ssl
+          protocol : TCP
+          containerPort: 53
+        - name : web-ssl
+          containerPort: 443
         volumeMounts:
         - name: pihole-adlists
           mountPath: /etc/pihole/adlists.list
@@ -47,6 +62,11 @@ spec:
         - name: pihole-regex
           mountPath: /etc/pihole/regex.list
           subPath: regex.list
+        securityContext:
+          capabilities:        
+            add:
+              - NET_ADMIN  
+      restartPolicy: Always
       volumes:
         - name: pihole-adlists
           configMap:

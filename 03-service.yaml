@@ -2,7 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: pihole-web-service
-  namespace : pihole-test
+  namespace : pihole-lox
 spec:
   selector:
     app: pihole
@@ -11,13 +11,22 @@ spec:
     port: 80
     targetPort: 80
     name : web
+  - protocol: TCP
+    port: 443
+    targetPort: 443
+    name : web-ssl
+  - protocol: TCP
+    port: 53
+    targetPort: 53
+    name : dns-ssl
+  loadBalancerIP: 10.99.2.221
   type: LoadBalancer 
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: pihole-dns-service
-  namespace: pihole-test
+  namespace: pihole-lox
 spec:
   externalTrafficPolicy: Local
   selector:
@@ -27,4 +36,5 @@ spec:
     port: 53
     targetPort: 53
     name : dns
+  loadBalancerIP: 10.99.2.220
   type: LoadBalancer 
